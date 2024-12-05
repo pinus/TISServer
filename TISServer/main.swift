@@ -5,8 +5,7 @@
 //  Created by pns
 //
 
-import Cocoa
-import InputMethodKit
+import Carbon
 
 var japaneseSource: TISInputSource?
 var katakanaSource: TISInputSource?
