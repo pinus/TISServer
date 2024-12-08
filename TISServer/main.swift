@@ -36,24 +36,33 @@ if katakanaSource == nil { katakanaSource = japaneseSource }
 
 // Select InputSource if changed
 func select(_ inputSource: TISInputSource?) {
-    // property doesn't follow manual TIS selecion
-    //let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected)
-    //let isSelected = Unmanaged<AnyObject>.fromOpaque(raw!).takeUnretainedValue() as! Bool
-    //if !isSelected { TISSelectInputSource(inputSource) } else { print ("Already selected") }
-    TISSelectInputSource(inputSource)
+    let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected)
+    let isSelected = Unmanaged<AnyObject>.fromOpaque(raw!).takeUnretainedValue() as! Bool
+    if !isSelected { TISSelectInputSource(inputSource) } // else { print ("Already selected") }
     print("OK")
     fflush(stdout)
 }
 
-// Change InputSource through stdin
-while true {
-    if let input = readLine() {
-        let requestID = input.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if requestID == "J" { select(japaneseSource) }
-        else if requestID == "R" { select(romanSource) }
-        else if requestID == "K" { select(katakanaSource) }
-        
-        else if requestID == "EXIT" { exit(0) }
+// readLine in background to follow manual change
+func readLineInBackground(completion: @escaping (String) -> Void) {
+    DispatchQueue.global().async {
+        while true {
+            if let input = readLine() {
+                completion(input)
+            }
+        }
     }
 }
+
+// call from main thread
+readLineInBackground { input in
+    let requestID = input.trimmingCharacters(in: .whitespacesAndNewlines)
+    
+    if requestID == "J" { select(japaneseSource) }
+    else if requestID == "R" { select(romanSource) }
+    else if requestID == "K" { select(katakanaSource) }
+    
+    else if requestID == "Q" { exit(0) }
+}
+
+RunLoop.current.run()
