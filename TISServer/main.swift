@@ -36,9 +36,13 @@ if katakanaSource == nil { katakanaSource = japaneseSource }
 
 // Select InputSource if changed
 func select(_ inputSource: TISInputSource?) {
-    let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected)
-    let isSelected = Unmanaged<AnyObject>.fromOpaque(raw!).takeUnretainedValue() as! Bool
-    if !isSelected { TISSelectInputSource(inputSource) } // else { print ("Already selected") }
+    // property doesn't follow manual TIS selecion
+    //let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected)
+    //let isSelected = Unmanaged<AnyObject>.fromOpaque(raw!).takeUnretainedValue() as! Bool
+    //if !isSelected { TISSelectInputSource(inputSource) } else { print ("Already selected") }
+    TISSelectInputSource(inputSource)
+    print("OK")
+    fflush(stdout)
 }
 
 // Change InputSource through stdin
