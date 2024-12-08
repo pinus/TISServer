@@ -11,8 +11,11 @@
 ```shell
 $ ./TISServer
 J
-K
+OK
 R
-EXIT
+OK
+K
+OK
+Q
 $ 
 ```
