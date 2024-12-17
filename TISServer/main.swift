@@ -10,6 +10,9 @@ import Carbon
 var japaneseSource: TISInputSource?
 var katakanaSource: TISInputSource?
 var romanSource: TISInputSource?
+var abcSource: TISInputSource?
+var usSource: TISInputSource?
+var usExtendedSource: TISInputSource?
 
 // get list of available inputSources
 guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as? [TISInputSource] else {
@@ -18,9 +21,12 @@ guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedVa
 
 // Scan japanese/roman IntputSources
 for inputSource in inputSourceList {
-    let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) //Optional<UnsafeMutableRawPointer>
+    var raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) //Optional<UnsafeMutableRawPointer>
     let mode = unsafeBitCast(raw, to: NSString.self) as String
+    raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID)
+    let id = unsafeBitCast(raw, to: NSString.self) as String
 
+    //print(inputSource)
     if mode == "com.apple.inputmethod.Japanese" {
         japaneseSource = inputSource
     } else if mode == "com.apple.inputmethod.Japanese.Katakana" {
@@ -28,11 +34,14 @@ for inputSource in inputSourceList {
     } else if mode == "com.apple.inputmethod.Roman" {
         romanSource = inputSource
     }
+    if id == "com.apple.keylayout.ABC" {
+        abcSource = inputSource
+    } else if id == "com.apple.keylayout.US" {
+        usSource = inputSource
+    } else if id == "com.apple.keylayout.USExtended" {
+        usExtendedSource = inputSource
+    }
 }
-
-// Check nil
-if japaneseSource == nil { japaneseSource = romanSource }
-if katakanaSource == nil { katakanaSource = japaneseSource }
 
 // Select InputSource if changed
 func select(_ inputSource: TISInputSource?) {
@@ -61,7 +70,10 @@ readLineInBackground { input in
     if requestID == "J" { select(japaneseSource) }
     else if requestID == "R" { select(romanSource) }
     else if requestID == "K" { select(katakanaSource) }
-    
+    else if requestID == "A" { select(abcSource) }
+    else if requestID == "U" { select(usSource) }
+    else if requestID == "X" { select(usExtendedSource) }
+
     else if requestID == "Q" { exit(0) }
 }
 
