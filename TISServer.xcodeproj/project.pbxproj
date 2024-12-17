@@ -3,15 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXCopyFilesBuildPhase section */
 		11D3D7822CF9308A004F3F27 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstSubfolder = None;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
@@ -33,10 +32,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		11D3D7812CF9308A004F3F27 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -70,14 +67,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				11D3D7862CF9308A004F3F27 /* TISServer */,
 			);
 			name = TISServer;
-			packageProductDependencies = (
-			);
 			productName = TISServer;
 			productReference = 11D3D7842CF9308A004F3F27 /* TISServer */;
 			productType = "com.apple.product-type.tool";
@@ -90,7 +83,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					11D3D7832CF9308A004F3F27 = {
 						CreatedOnToolsVersion = 16.1;
@@ -106,7 +99,7 @@
 			);
 			mainGroup = 11D3D77B2CF9308A004F3F27;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 11D3D7852CF9308A004F3F27 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -119,15 +112,13 @@
 /* Begin PBXSourcesBuildPhase section */
 		11D3D7802CF9308A004F3F27 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		11D3D7892CF9308A004F3F27 /* Debug */ = {
+		11D3D7892CF9308A004F3F27 /* Debug configuration for PBXProject "TISServer" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -161,6 +152,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -180,17 +172,18 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		11D3D78A2CF9308A004F3F27 /* Release */ = {
+		11D3D78A2CF9308A004F3F27 /* Release configuration for PBXProject "TISServer" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -224,6 +217,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -237,27 +231,33 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};
-		11D3D78C2CF9308A004F3F27 /* Debug */ = {
+		11D3D78C2CF9308A004F3F27 /* Debug configuration for PBXNativeTarget "TISServer" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		11D3D78D2CF9308A004F3F27 /* Release */ = {
+		11D3D78D2CF9308A004F3F27 /* Release configuration for PBXNativeTarget "TISServer" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -269,19 +269,17 @@
 		11D3D77F2CF9308A004F3F27 /* Build configuration list for PBXProject "TISServer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				11D3D7892CF9308A004F3F27 /* Debug */,
-				11D3D78A2CF9308A004F3F27 /* Release */,
+				11D3D7892CF9308A004F3F27 /* Debug configuration for PBXProject "TISServer" */,
+				11D3D78A2CF9308A004F3F27 /* Release configuration for PBXProject "TISServer" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		11D3D78B2CF9308A004F3F27 /* Build configuration list for PBXNativeTarget "TISServer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				11D3D78C2CF9308A004F3F27 /* Debug */,
-				11D3D78D2CF9308A004F3F27 /* Release */,
+				11D3D78C2CF9308A004F3F27 /* Debug configuration for PBXNativeTarget "TISServer" */,
+				11D3D78D2CF9308A004F3F27 /* Release configuration for PBXNativeTarget "TISServer" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

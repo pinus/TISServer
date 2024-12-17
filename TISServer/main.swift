@@ -6,6 +6,9 @@
 //
 
 import Carbon
+import AppKit
+
+let VERSION = "1.0"
 
 var japaneseSource: TISInputSource?
 var katakanaSource: TISInputSource?
@@ -13,6 +16,7 @@ var romanSource: TISInputSource?
 var abcSource: TISInputSource?
 var usSource: TISInputSource?
 var usExtendedSource: TISInputSource?
+let txtView = NSTextInputContext.init(client: NSTextView.init())
 
 // get list of available inputSources
 guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as? [TISInputSource] else {
@@ -21,33 +25,53 @@ guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedVa
 
 // Scan japanese/roman IntputSources
 for inputSource in inputSourceList {
-    var raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) //Optional<UnsafeMutableRawPointer>
-    let mode = unsafeBitCast(raw, to: NSString.self) as String
-    raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID)
-    let id = unsafeBitCast(raw, to: NSString.self) as String
-
-    //print(inputSource)
-    if mode == "com.apple.inputmethod.Japanese" {
-        japaneseSource = inputSource
-    } else if mode == "com.apple.inputmethod.Japanese.Katakana" {
-        katakanaSource = inputSource
-    } else if mode == "com.apple.inputmethod.Roman" {
-        romanSource = inputSource
+    //
+    // lookup by id: com.apple.keylayout {.US, .USExtended, .ABC, ... } 
+    //
+    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {  //Optional<UnsafeMutableRawPointer>
+        let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+        if id == "com.apple.keylayout.ABC" {
+            abcSource = inputSource
+        } else if id == "com.apple.keylayout.US" {
+            usSource = inputSource
+        } else if id == "com.apple.keylayout.USExtended" {
+            usExtendedSource = inputSource
+        }
     }
-    if id == "com.apple.keylayout.ABC" {
-        abcSource = inputSource
-    } else if id == "com.apple.keylayout.US" {
-        usSource = inputSource
-    } else if id == "com.apple.keylayout.USExtended" {
-        usExtendedSource = inputSource
+    //
+    // lookup by mode: com.apple.inputmethod { .Roman, .Japanese, .Japanese.Katakana }
+    // corresponding id = com.justsystems.inputmethod.atok35 {.Roman, .Japanese, .Japanese.Katakana }
+    //
+    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) {
+        let mode = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+        if mode == "com.apple.inputmethod.Japanese" {
+            japaneseSource = inputSource
+        } else if mode == "com.apple.inputmethod.Japanese.Katakana" {
+            katakanaSource = inputSource
+        } else if mode == "com.apple.inputmethod.Roman" {
+            romanSource = inputSource
+        }
     }
+    //print("\(id) : \(mode)")
 }
 
 // Select InputSource if changed
 func select(_ inputSource: TISInputSource?) {
-    let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected)
-    let isSelected = Unmanaged<AnyObject>.fromOpaque(raw!).takeUnretainedValue() as! Bool
-    if !isSelected { TISSelectInputSource(inputSource) } // else { print ("Already selected") }
+    // select through TIS
+//    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected) {
+//        let isSelected = Unmanaged<AnyObject>.fromOpaque(raw).takeUnretainedValue() as! Bool
+//        if !isSelected { TISSelectInputSource(inputSource) } //else { print ("Already selected") }
+//    }
+    
+    // select through NSTextView
+    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
+        let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+        let selected = txtView.value(forKey: "selectedKeyboardInputSource") as! String
+        if (id != selected) {
+            txtView.setValue(id, forKey: "selectedKeyboardInputSource")
+        } // else { print ("Already selected") }
+    }
+        
     print("OK")
     fflush(stdout)
 }
@@ -73,8 +97,8 @@ readLineInBackground { input in
     else if requestID == "A" { select(abcSource) }
     else if requestID == "U" { select(usSource) }
     else if requestID == "X" { select(usExtendedSource) }
-
     else if requestID == "Q" { exit(0) }
+    else if requestID == "?" { print(VERSION); fflush(stdout) }
 }
 
 RunLoop.current.run()
