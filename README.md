@@ -5,14 +5,17 @@
 ![](https://img.shields.io/badge/command%20line-8A2BE2)
 
 ## 機能
-標準出力を待機して、J ならひらがな、K ならカタカナ、R なら英数に切り替える。EXIT で終了する
+標準入力を待機して、J ならひらがな、K ならカタカナ、R なら英数に切り替える。Q で終了する
 
 ## 使い方
 ```shell
 $ ./TISServer
 J
-K
+OK
 R
-EXIT
+OK
+K
+OK
+Q
 $ 
 ```
