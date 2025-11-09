@@ -8,7 +8,7 @@
 import Carbon
 import AppKit
 
-let VERSION = "1.0"
+let VERSION = "1.2"
 
 var japaneseSource: TISInputSource?
 var katakanaSource: TISInputSource?
@@ -16,7 +16,7 @@ var romanSource: TISInputSource?
 var abcSource: TISInputSource?
 var usSource: TISInputSource?
 var usExtendedSource: TISInputSource?
-let txtView = NSTextInputContext.init(client: NSTextView.init())
+//let txtView = NSTextInputContext.init(client: NSTextView.init())
 
 // get list of available inputSources
 guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as? [TISInputSource] else {
@@ -58,47 +58,46 @@ for inputSource in inputSourceList {
 // Select InputSource if changed
 func select(_ inputSource: TISInputSource?) {
     // select through TIS
-//    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected) {
-//        let isSelected = Unmanaged<AnyObject>.fromOpaque(raw).takeUnretainedValue() as! Bool
-//        if !isSelected { TISSelectInputSource(inputSource) } //else { print ("Already selected") }
-//    }
-    
-    // select through NSTextView
-    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
-        let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
-        let selected = txtView.value(forKey: "selectedKeyboardInputSource") as! String
-        if (id != selected) {
-            txtView.setValue(id, forKey: "selectedKeyboardInputSource")
-        } // else { print ("Already selected") }
+    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceIsSelected) {
+        let isSelected = Unmanaged<AnyObject>.fromOpaque(raw).takeUnretainedValue() as! Bool
+        if !isSelected {
+            TISSelectInputSource(inputSource)
+        } //else { print ("Already selected") }
     }
-        
+
+    // select through NSTextView
+//    if !Thread.isMainThread {
+//        DispatchQueue.main.async { select(inputSource) }
+//        return
+//    }
+//
+//    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
+//        let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+//        let selected = txtView.selectedKeyboardInputSource
+//        if id != selected {
+//            txtView.selectedKeyboardInputSource = id
+//        } // else { print("Already selected") }
+//    }
+
     print("OK")
     fflush(stdout)
 }
 
-// readLine in background to follow manual change
-func readLineInBackground(completion: @escaping (String) -> Void) {
-    DispatchQueue.global().async {
-        while true {
-            if let input = readLine() {
-                completion(input)
-            }
+DispatchQueue.main.async {
+    while true {
+        if let input = readLine() {
+            let requestID = input.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if requestID == "J" { select(japaneseSource) }
+            else if requestID == "R" { select(romanSource) }
+            else if requestID == "K" { select(katakanaSource) }
+            else if requestID == "A" { select(abcSource) }
+            else if requestID == "U" { select(usSource) }
+            else if requestID == "X" { select(usExtendedSource) }
+            else if requestID == "Q" { exit(0) }
+            else if requestID == "?" { print(VERSION); fflush(stdout) }
         }
     }
-}
-
-// call from main thread
-readLineInBackground { input in
-    let requestID = input.trimmingCharacters(in: .whitespacesAndNewlines)
-    
-    if requestID == "J" { select(japaneseSource) }
-    else if requestID == "R" { select(romanSource) }
-    else if requestID == "K" { select(katakanaSource) }
-    else if requestID == "A" { select(abcSource) }
-    else if requestID == "U" { select(usSource) }
-    else if requestID == "X" { select(usExtendedSource) }
-    else if requestID == "Q" { exit(0) }
-    else if requestID == "?" { print(VERSION); fflush(stdout) }
 }
 
 RunLoop.current.run()
