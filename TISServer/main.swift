@@ -18,41 +18,43 @@ var usSource: TISInputSource?
 var usExtendedSource: TISInputSource?
 //let txtView = NSTextInputContext.init(client: NSTextView.init())
 
-// get list of available inputSources
-guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as? [TISInputSource] else {
-    exit(1)
-}
+func scanInputSources() {
+    // get list of available inputSources
+    guard let inputSourceList = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as? [TISInputSource] else {
+        exit(1)
+    }
 
-// Scan japanese/roman IntputSources
-for inputSource in inputSourceList {
-    //
-    // lookup by id: com.apple.keylayout {.US, .USExtended, .ABC, ... } 
-    //
-    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {  //Optional<UnsafeMutableRawPointer>
-        let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
-        if id == "com.apple.keylayout.ABC" {
-            abcSource = inputSource
-        } else if id == "com.apple.keylayout.US" {
-            usSource = inputSource
-        } else if id == "com.apple.keylayout.USExtended" {
-            usExtendedSource = inputSource
+    // Scan japanese/roman IntputSources
+    for inputSource in inputSourceList {
+        //
+        // lookup by id: com.apple.keylayout {.US, .USExtended, .ABC, ... }
+        //
+        if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {  //Optional<UnsafeMutableRawPointer>
+            let id = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+            if id == "com.apple.keylayout.ABC" {
+                abcSource = inputSource
+            } else if id == "com.apple.keylayout.US" {
+                usSource = inputSource
+            } else if id == "com.apple.keylayout.USExtended" {
+                usExtendedSource = inputSource
+            }
         }
-    }
-    //
-    // lookup by mode: com.apple.inputmethod { .Roman, .Japanese, .Japanese.Katakana }
-    // corresponding id = com.justsystems.inputmethod.atok35 {.Roman, .Japanese, .Japanese.Katakana }
-    //
-    if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) {
-        let mode = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
-        if mode == "com.apple.inputmethod.Japanese" {
-            japaneseSource = inputSource
-        } else if mode == "com.apple.inputmethod.Japanese.Katakana" {
-            katakanaSource = inputSource
-        } else if mode == "com.apple.inputmethod.Roman" {
-            romanSource = inputSource
+        //
+        // lookup by mode: com.apple.inputmethod { .Roman, .Japanese, .Japanese.Katakana }
+        // corresponding id = com.justsystems.inputmethod.atok35 {.Roman, .Japanese, .Japanese.Katakana }
+        //
+        if let raw = TISGetInputSourceProperty(inputSource, kTISPropertyInputModeID) {
+            let mode = Unmanaged<CFString>.fromOpaque(raw).takeUnretainedValue() as String
+            if mode == "com.apple.inputmethod.Japanese" {
+                japaneseSource = inputSource
+            } else if mode == "com.apple.inputmethod.Japanese.Katakana" {
+                katakanaSource = inputSource
+            } else if mode == "com.apple.inputmethod.Roman" {
+                romanSource = inputSource
+            }
         }
+        //print("\(id) : \(mode)")
     }
-    //print("\(id) : \(mode)")
 }
 
 // Select InputSource if changed
@@ -83,6 +85,7 @@ func select(_ inputSource: TISInputSource?) {
     fflush(stdout)
 }
 
+scanInputSources()
 DispatchQueue.main.async {
     while true {
         if let input = readLine() {
