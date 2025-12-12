@@ -5,10 +5,9 @@
 //  Created by pns
 //
 
-//import Carbon
-import AppKit
+let VERSION = "1.4"
 
-let VERSION = "1.3"
+//import Carbon
 
 //var japaneseSource: TISInputSource?
 //var katakanaSource: TISInputSource?
@@ -100,6 +99,9 @@ let VERSION = "1.3"
  com.justsystems.inputmethod.atok35.Japanese.HalfWidthEiji: '半角英字（ATOK）'
  com.justsystems.inputmethod.atok35: 'ATOK'
  */
+
+import AppKit
+
 var japaneseId: String?
 var katakanaId: String?
 var romanId: String?
@@ -134,12 +136,17 @@ func scanInputSources() {
 // Select InputSource if changed
 func select(_ inputSource: String?) {
     // select through NSTextView
-    guard let target = inputSource else { return }
-    let selected = txtView.selectedKeyboardInputSource
-    if target != selected {
+    // ** selectedKeyboardInputSource does not update in response to manual input source changes **
+    //guard let target = inputSource else { return }
+    //let selected = txtView.selectedKeyboardInputSource
+    //if target != selected {
+    //    txtView.selectedKeyboardInputSource = target
+    //} // else { print("Already selected") }
+
+    if let target = inputSource {
         txtView.selectedKeyboardInputSource = target
-    } // else { print("Already selected") }
-    
+    }
+
     print("OK")
     fflush(stdout)
 }
