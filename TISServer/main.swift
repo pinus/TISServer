@@ -5,7 +5,7 @@
 //  Created by pns
 //
 
-let VERSION = "1.4"
+let VERSION = "1.5"
 
 import Carbon
 
