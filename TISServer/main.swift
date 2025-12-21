@@ -87,7 +87,7 @@ func initialize() {
     else if kotoeriId != nil { japaneseId = kotoeriId; romanId = usId }
 
     Task {
-        // 入寮メニューが表示される場所.
+        // 入力メニューが表示される場所の矩形範囲.
         // 時計はデジタル, 日付, 曜日, 秒, 全てありに設定. 入力メニューはメニューバーのできるだけ右に配置.
         guard let s = NSScreen.main else { return }
         let w = 150.0
@@ -146,17 +146,17 @@ func select(_ target: String?) {
             } else {
                 selected = txtView.selectedKeyboardInputSource
             }
-            log("selected = \(selected!)")
+            log("from \(selected!) to \(target!)")
             
             if target != selected {
                 txtView.selectedKeyboardInputSource = target!
             } else { log("Already selected") }
             
-            print("OK")
-            fflush(stdout)
         }
         log("duration: \(asyncDuration)")
     }
+    print("OK")
+    fflush(stdout)
 }
 
 
