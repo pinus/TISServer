@@ -39,16 +39,11 @@ var usExtendedId: String?
 var atokId: String?
 var kotoeriId: String?
 let txtView = NSTextInputContext.init(client: NSTextView.init())
-var captureFilter: SCContentFilter?
-var captureConfig: SCStreamConfiguration?
 var textRequest: VNRecognizeTextRequest?
+let ocrRegion = OCRRegion()
 
 func log(_ message: String) {
     logger.log("\(message, privacy: .public)")
-}
-
-enum CaptureError: Error {
-    case captureFailed, ocrFailed, noResults
 }
 
 /// 画面上の特定の矩形範囲をキャプチャして OCR 結果を返す
@@ -66,6 +61,66 @@ func capturedString(filter: SCContentFilter, config: SCStreamConfiguration) asyn
     return recognizedStrings.joined(separator: " ")
 }
 
+/// Menuextra Clock UserDefaults の設定値
+struct MenuextraClockSettings: Equatable {
+    var isAnalog: Int
+    var showSeconds: Int
+    var showDate: Int
+    var showDayOfWeek: Int
+}
+
+/// OCR 区画を menuextra clock の状態に応じて決め, filter, config を作る
+class OCRRegion {
+    let inputMenuWidth = 150.0
+    let menuBarHeight = 28.0
+    let domain = "com.apple.menuextra.clock"
+    var settings = MenuextraClockSettings(isAnalog: -1, showSeconds: -1, showDate: -1, showDayOfWeek: -1)
+    var captureFilter: SCContentFilter?
+    var captureConfig: SCStreamConfiguration?
+
+    func update() async throws {
+        // UserDefaults のチェック
+        if let analog = UserDefaults.standard.persistentDomain(forName: domain)?["IsAnalog"] as? Int,
+           let showSeconds = UserDefaults.standard.persistentDomain(forName: domain)?["ShowSeconds"] as? Int,
+           let showDate = UserDefaults.standard.persistentDomain(forName: domain)?["ShowDate"] as? Int,
+           let showDayOfWeek = UserDefaults.standard.persistentDomain(forName: domain)?["ShowDayOfWeek"] as? Int {
+            // updatecheck
+            let newSetting = MenuextraClockSettings(isAnalog: analog, showSeconds: showSeconds, showDate: showDate, showDayOfWeek: showDayOfWeek)
+            if settings == newSetting { return }
+            
+            log("Menuextra Clock setting updated.")
+            settings = newSetting
+                        
+            var inputMenuOffset = 200.0
+            if analog == 0 { // digital
+                if showSeconds == 0 { inputMenuOffset -= 23.0 }
+                if showDate == 2 { // hide date
+                    if showDayOfWeek == 0 { inputMenuOffset -= 87.0 }
+                    else { inputMenuOffset -= 76.0 }
+                } else { // show date
+                    if showDayOfWeek == 0 { inputMenuOffset -= 21.0 }
+                }
+            } else { inputMenuOffset -= 125.0 } // analog
+
+            let content = try await SCShareableContent.current
+            guard let display = content.displays.first else { return }
+            let x = CGFloat(display.width) - inputMenuWidth - inputMenuOffset
+            let rect = CGRect(x: x, y: 0.0, width: inputMenuWidth, height: menuBarHeight)
+            
+            captureFilter = SCContentFilter(display: display, excludingWindows: [])
+            
+            let config = SCStreamConfiguration()
+            config.width = Int(rect.width)
+            config.height = Int(rect.height)
+            config.sourceRect = rect
+            config.showsCursor = false
+            
+            captureConfig = config
+        }
+    }
+}
+
+/// 初期設定
 func initialize() {
     guard let sources = txtView.keyboardInputSources else {
         print("No keyboard input sources available.")
@@ -87,27 +142,8 @@ func initialize() {
     else if kotoeriId != nil { japaneseId = kotoeriId; romanId = usId }
 
     Task {
-        // 入力メニューが表示される場所の矩形範囲.
-        // 時計はデジタル, 日付, 曜日, 秒, 全てありに設定. 入力メニューはメニューバーのできるだけ右に配置.
-        guard let s = NSScreen.main else { return }
-        let w = 150.0
-        let x = s.visibleFrame.width - w - 200.0
-        let y = 0.0
-        let h = s.frame.maxY - s.visibleFrame.maxY
-        let rect = CGRect(x: x, y: y, width: w, height: h)
-
-        // キャプチャの設定
-        let content = try await SCShareableContent.current
-        guard let display = content.displays.first else { return }
-        
-        captureFilter = SCContentFilter(display: display, excludingWindows: [])
-        
-        let config = SCStreamConfiguration()
-        config.width = Int(rect.width)
-        config.height = Int(rect.height)
-        config.sourceRect = rect
-        config.showsCursor = false
-        captureConfig = config
+        // 入力メニューが表示される場所の矩形範囲を決める
+        try await ocrRegion.update()
         
         // OCR 設定
         let request: VNRecognizeTextRequest = {
@@ -121,15 +157,18 @@ func initialize() {
     }
 }
 
-// Select InputSource if changed
+/// Select InputSource if changed
 func select(_ target: String?) {
     Task {
         let clock = ContinuousClock()
         let asyncDuration = try await clock.measure {
-            guard let filter = captureFilter,
-                  let config = captureConfig else { return }
+            try await ocrRegion.update()
+            
+            guard let filter = ocrRegion.captureFilter,
+                  let config = ocrRegion.captureConfig else { return }
             let captured = try await capturedString(filter: filter, config: config)
-            log("result = \(captured)")
+            log("capture = \(captured)")
+
             var selected: String?
             if captured.contains("ひら") {
                 selected = japaneseId
@@ -146,9 +185,9 @@ func select(_ target: String?) {
             } else {
                 selected = txtView.selectedKeyboardInputSource
             }
-            log("from \(selected!) to \(target!)")
             
             if target != selected {
+                log("to \(target!) from \(selected!) ")
                 txtView.selectedKeyboardInputSource = target!
             } else { log("Already selected") }
             
