@@ -5,7 +5,7 @@
 //  Created by pns
 //
 
-let VERSION = "2.0"
+let VERSION = "3.0"
 
 /*
  com.apple.keylayout.Russian: 'Russian'
